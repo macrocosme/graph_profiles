@@ -1,0 +1,5 @@
+dtaidistance==1.2.3
+pandas==1.0.3
+tqdm==4.24.0
+pdat==0.2.1
+psrqpy==1.0.0
