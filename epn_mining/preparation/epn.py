@@ -4,12 +4,14 @@ import os
 import glob
 import json
 from tqdm import tqdm
-from psrqpy import QueryATNF
+try:
+    from psrqpy import QueryATNF
+except ImportError:
+    QueryATNF = None
 import pandas as pd
 from .pulsar import Pulsar, Population
 from .reader import parse_inputdata_file
 from .preparation import read_metadata_file
-from ..analysis.stats import compute_statistics
 from .. import main
 
 LIMS = (
@@ -84,12 +86,14 @@ def load_epn_metadata(base_path = '../www.epta.eu.org/epndb/json', reference=Non
     # Fetch ATNF Pulsar info (including bname where available)
     if verbose:
         print('Querying ATNF pulsar catalogue')
-    psrcat = QueryATNF(
-        params=ATNF_PARAMS,
-        psrs=jnames,
-        cache=False,
-    )
-    df_psrcat = psrcat.dataframe
+
+    if QueryATNF is not None:
+        psrcat = QueryATNF(
+            params=ATNF_PARAMS,
+            psrs=jnames,
+            cache=False,
+        )
+        df_psrcat = psrcat.dataframe
 
     # Build catalogue metadata
     if verbose:
