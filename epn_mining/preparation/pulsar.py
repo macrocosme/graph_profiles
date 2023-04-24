@@ -3,7 +3,7 @@ from ..analysis.stats import (
     fwhm,
     centroid,
     compute_statistics,
-    evaluate_DPGMM,
+    # evaluate_DPGMM,
     profile_from_gmm,
     convert_x_to_phase,
     robust_statistics
@@ -64,7 +64,6 @@ class Population:
         for jname in self.pulsars.keys():
             for i, freq in enumerate(self.pulsars[jname].observations.keys()):
                 obs = self.pulsars[jname].observations[freq]
-
 
 class Pulsar:
     def __init__(self, jname, bname=None, index=None, period=None, period_derivative=None, spindown_energy=None,
@@ -272,7 +271,6 @@ class Pulsar:
     @dtw_paths.setter
     def dtw_paths(self, dtw_paths):
         self._dtw_paths = dtw_paths
-
 
 class Observation:
     def __init__(self,
@@ -711,126 +709,131 @@ class Observation:
     def set_snr(self, prop='stokes_I'):
         self.snr = self.get_snr(prop)
 
-    def get_model(self, prop='stokes_I',
-                        n_components=30,
-                        alpha=10**4,
-                        tol=1e-3,
-                        max_iter=1000,
-                        mean_prior=None,
-                        mean_precision_prior=None,
-                        threshold=False,
-                        fit_whole=True,
-                        window=0.3,
-                        phase_distribution_size=1000,
-                        draw_random=False,
-                        roll=False,
-                        window_roll=None,
-                        cut=False,
-                        scale=False,
-                        fwhm=None,
-                  ):
-        profile = copy.deepcopy(self.get_property(prop)) if threshold else self.get_property(prop)
-        if threshold:
-            profile[np.where(np.abs(profile) <= self.central + 3 * self.sigma_noise)] = self.central + 3 * self.sigma_noise
-            profile = (profile - profile.min()) / (profile.max() - profile.min())
-
-        if not fit_whole:
-            cond = np.where(np.abs(self.phase) < window)
-
-        if roll:
-            n_roll = profile.size//2 if window_roll is None else window_roll
-            profile = np.roll(profile, n_roll)
-
-        # Will need to handle two-case situations when with_interpulse is true
-        self.gmm = evaluate_DPGMM(
-            profile if fit_whole else profile[cond],
-            self.get_property('phase') if fit_whole else self.phase[cond],
-            n_components_start = n_components,
-            alpha = alpha,
-            tol=tol,
-            max_iter=max_iter,
-            mean_prior=mean_prior,
-            mean_precision_prior=mean_precision_prior,
-            phase_distribution_size=phase_distribution_size,
-            draw_random=draw_random
-        )
-
-        if roll == 0:
-            self.model, self.model_components = profile_from_gmm(
-                self,
-                cut=cut,
-                scale=scale,
-                fwhm=fwhm,
-                fit_whole=fit_whole,
-                window=window
-            )
-        else:
-            self.stokes_I = profile  # assumes prop is stokes I
-            model, model_components = profile_from_gmm(
-                self,
-                cut=cut,
-                scale=scale,
-                fwhm=fwhm,
-                fit_whole=fit_whole,
-                window=window,
-                interpulse=True
-            )
-
-            model = np.roll(model, -n_roll)
-            self.model = np.mean([self.model, model], axis=0)
-            for i, c in enumerate(model_components):
-                model_components[i] = np.roll(c, -n_roll)
-            self.model_components = np.append(self.model_components, model_components, axis=0)
-
-            self.stokes_I = np.roll(self.stokes_I, -n_roll)
-
-        return self.gmm
-
-    # The experimental changes to deal with interpulses made this function deprecated potentially...
-    def set_model(self, prop='stokes_I',
-                        threshold=False,
-                        alpha=10**4,
-                        tol=1e-3,
-                        max_iter=1000,
-                        n_components=30,
-                        cut=False,
-                        scale=False,
-                        override=False,
-                        mean_prior=None,
-                        mean_precision_prior=None,
-                        fwhm=None,
-                        fit_whole=True,
-                        window=0.3,
-                        window_roll=None,
-                        phase_distribution_size=1000,
-                        draw_random=False,
-                        has_interpulse=False
-                  ):
-
-        for roll in range(2 if has_interpulse else 1):
-            if self.gmm is None or override:
-                self.get_model(prop,
-                               n_components=n_components,
-                               alpha=alpha,
-                               tol=tol,
-                               max_iter=max_iter,
-                               mean_prior=mean_prior,
-                               mean_precision_prior=mean_precision_prior,
-                               threshold=threshold,
-                               fit_whole=fit_whole,
-                               window=window,
-                               phase_distribution_size=phase_distribution_size,
-                               draw_random=draw_random,
-                               cut=cut,
-                               scale=scale,
-                               fwhm=fwhm,
-                               roll=roll,
-                               window_roll=window_roll)
+    # def get_model(self, prop='stokes_I',
+    #                     n_components=30,
+    #                     alpha=10**4,
+    #                     tol=1e-3,
+    #                     max_iter=1000,
+    #                     mean_prior=None,
+    #                     mean_precision_prior=None,
+    #                     threshold=False,
+    #                     fit_whole=True,
+    #                     window=0.3,
+    #                     phase_distribution_size=1000,
+    #                     draw_random=False,
+    #                     roll=False,
+    #                     window_roll=None,
+    #                     cut=False,
+    #                     scale=False,
+    #                     fwhm=None,
+    #               ):
+    #     profile = copy.deepcopy(self.get_property(prop)) if threshold else self.get_property(prop)
+    #     if threshold:
+    #         profile[np.where(np.abs(profile) <= self.central + 3 * self.sigma_noise)] = self.central + 3 * self.sigma_noise
+    #         profile = (profile - profile.min()) / (profile.max() - profile.min())
+    #
+    #     if not fit_whole:
+    #         cond = np.where(np.abs(self.phase) < window)
+    #
+    #     if roll:
+    #         n_roll = profile.size//2 if window_roll is None else window_roll
+    #         profile = np.roll(profile, n_roll)
+    #
+    #     # Will need to handle two-case situations when with_interpulse is true
+    #     self.gmm = evaluate_DPGMM(
+    #         profile if fit_whole else profile[cond],
+    #         self.get_property('phase') if fit_whole else self.phase[cond],
+    #         n_components_start = n_components,
+    #         alpha = alpha,
+    #         tol=tol,
+    #         max_iter=max_iter,
+    #         mean_prior=mean_prior,
+    #         mean_precision_prior=mean_precision_prior,
+    #         phase_distribution_size=phase_distribution_size,
+    #         draw_random=draw_random
+    #     )
+    #
+    #     if roll == 0:
+    #         self.model, self.model_components = profile_from_gmm(
+    #             self,
+    #             cut=cut,
+    #             scale=scale,
+    #             fwhm=fwhm,
+    #             fit_whole=fit_whole,
+    #             window=window
+    #         )
+    #     else:
+    #         self.stokes_I = profile  # assumes prop is stokes I
+    #         model, model_components = profile_from_gmm(
+    #             self,
+    #             cut=cut,
+    #             scale=scale,
+    #             fwhm=fwhm,
+    #             fit_whole=fit_whole,
+    #             window=window,
+    #             interpulse=True
+    #         )
+    #
+    #         model = np.roll(model, -n_roll)
+    #         self.model = np.mean([self.model, model], axis=0)
+    #         for i, c in enumerate(model_components):
+    #             model_components[i] = np.roll(c, -n_roll)
+    #         self.model_components = np.append(self.model_components, model_components, axis=0)
+    #
+    #         self.stokes_I = np.roll(self.stokes_I, -n_roll)
+    #
+    #     return self.gmm
+    #
+    # # The experimental changes to deal with interpulses made this function deprecated potentially...
+    # def set_model(self, prop='stokes_I',
+    #                     threshold=False,
+    #                     alpha=10**4,
+    #                     tol=1e-3,
+    #                     max_iter=1000,
+    #                     n_components=30,
+    #                     cut=False,
+    #                     scale=False,
+    #                     override=False,
+    #                     mean_prior=None,
+    #                     mean_precision_prior=None,
+    #                     fwhm=None,
+    #                     fit_whole=True,
+    #                     window=0.3,
+    #                     window_roll=None,
+    #                     phase_distribution_size=1000,
+    #                     draw_random=False,
+    #                     has_interpulse=False
+    #               ):
+    #
+    #     for roll in range(2 if has_interpulse else 1):
+    #         if self.gmm is None or override:
+    #             self.get_model(prop,
+    #                            n_components=n_components,
+    #                            alpha=alpha,
+    #                            tol=tol,
+    #                            max_iter=max_iter,
+    #                            mean_prior=mean_prior,
+    #                            mean_precision_prior=mean_precision_prior,
+    #                            threshold=threshold,
+    #                            fit_whole=fit_whole,
+    #                            window=window,
+    #                            phase_distribution_size=phase_distribution_size,
+    #                            draw_random=draw_random,
+    #                            cut=cut,
+    #                            scale=scale,
+    #                            fwhm=fwhm,
+    #                            roll=roll,
+    #                            window_roll=window_roll)
 
     def remove_baseline(self, prop='stokes_I'):
         return remove_baseline(
             self.get_property(prop)
         )
+
+
+
+
+
 
 class Component:
     def __init__(self, amplitude=None, fwhm=None, mean=None):
@@ -861,7 +864,6 @@ class Component:
     @mean.setter
     def mean(self, mean):
         self._mean = mean
-
 
 class Model:
     def __init__(self, components:[]=None, phase:np.array=None, rms=None):
