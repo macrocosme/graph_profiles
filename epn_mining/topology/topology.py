@@ -1,7 +1,6 @@
 from .graph import Graph
 from ..analysis.distance import Distance, crop
 from ..preparation.reader import resize_to_N
-from dtaidistance import dtw, clustering
 import numpy as np
 from tqdm import tqdm
 from scipy.cluster import hierarchy
