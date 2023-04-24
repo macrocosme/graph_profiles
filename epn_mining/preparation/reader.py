@@ -1,4 +1,4 @@
-import pdat
+# import pdat
 import numpy as np
 from .pulsar import Observation
 from .signal import (
@@ -47,23 +47,23 @@ def _normalize_stokes(obs):
 
     return obs
 
-def load_psrfits_data(file_location):
-    profile = pdat.psrfits(file_location, verbose=False)
-    data = profile[2].read(verbose=False)
-
-    stokes_I, stokes_Q, stokes_U, stokes_V = None, None, None, None
-
-    if data['DATA'].shape[1] == 1:
-        stokes_I = (data['DATA'][0,0,-1] * data['DAT_SCL'][0]) + data['DAT_OFFS'][0]
-    else:
-        stokes_I = (data['DATA'][0,0,-1] * data['DAT_SCL'][0, 0]) + data['DAT_OFFS'][0, 0]
-        stokes_Q = (data['DATA'][0,1,-1] * data['DAT_SCL'][0, 1]) + data['DAT_OFFS'][0, 1]
-        stokes_U = (data['DATA'][0,2,-1] * data['DAT_SCL'][0, 2]) + data['DAT_OFFS'][0, 2]
-        stokes_V = (data['DATA'][0,3,-1] * data['DAT_SCL'][0, 3]) + data['DAT_OFFS'][0, 3]
-
-    profile.close()
-
-    return stokes_I, stokes_Q, stokes_U, stokes_V
+# def load_psrfits_data(file_location):
+#     profile = pdat.psrfits(file_location, verbose=False)
+#     data = profile[2].read(verbose=False)
+#
+#     stokes_I, stokes_Q, stokes_U, stokes_V = None, None, None, None
+#
+#     if data['DATA'].shape[1] == 1:
+#         stokes_I = (data['DATA'][0,0,-1] * data['DAT_SCL'][0]) + data['DAT_OFFS'][0]
+#     else:
+#         stokes_I = (data['DATA'][0,0,-1] * data['DAT_SCL'][0, 0]) + data['DAT_OFFS'][0, 0]
+#         stokes_Q = (data['DATA'][0,1,-1] * data['DAT_SCL'][0, 1]) + data['DAT_OFFS'][0, 1]
+#         stokes_U = (data['DATA'][0,2,-1] * data['DAT_SCL'][0, 2]) + data['DAT_OFFS'][0, 2]
+#         stokes_V = (data['DATA'][0,3,-1] * data['DAT_SCL'][0, 3]) + data['DAT_OFFS'][0, 3]
+#
+#     profile.close()
+#
+#     return stokes_I, stokes_Q, stokes_U, stokes_V
 
 def load_ascii_data(file_location):
     stokes_I, stokes_Q, stokes_U, stokes_V = None, None, None, None
