@@ -1,7 +1,7 @@
 import copy
 
 import numpy as np
-from sklearn import mixture
+# from sklearn import mixture
 from scipy.stats import norm
 from joblib import parallel_backend
 from scipy.signal import find_peaks
@@ -197,36 +197,36 @@ def profile_as_distribution(profile, phase, size=100000, threshold=False, random
     profile_sampling = np.expand_dims(line_distribution, 1)
     return profile_sampling
 
-def evaluate_DPGMM(profile, phase, n_components_start = 30, alpha=10**4, tol=1e-3, max_iter=1000,
-                   weight_concentration_prior_type='dirichlet_process',
-                   mean_prior=None, mean_precision_prior=None,
-                   phase_distribution_size=1000, draw_random=False):
-
-    """
-    Draw (size) phase samples from Profile used as PDF
-
-    For speed:
-    random=False : best use size ~ 1000  (in this mode, size is a scaling factor on the intensity of a phase bin)
-    random=True : best use size ~ 10,000 (total number of draws)
-    """
-    profile_sampling = profile_as_distribution(profile, phase, size = phase_distribution_size, random=draw_random)
-
-    """
-    Fit data
-    """
-    with parallel_backend('threading', n_jobs=-1):
-        gmm = mixture.BayesianGaussianMixture(
-            n_components = n_components_start,
-            weight_concentration_prior_type=weight_concentration_prior_type,
-            weight_concentration_prior=alpha,
-            mean_prior=mean_prior,
-            mean_precision_prior=mean_precision_prior,
-            tol=tol,
-            max_iter=max_iter
-        )
-        gmm.fit(profile_sampling)
-
-    return gmm
+# def evaluate_DPGMM(profile, phase, n_components_start = 30, alpha=10**4, tol=1e-3, max_iter=1000,
+#                    weight_concentration_prior_type='dirichlet_process',
+#                    mean_prior=None, mean_precision_prior=None,
+#                    phase_distribution_size=1000, draw_random=False):
+#
+#     """
+#     Draw (size) phase samples from Profile used as PDF
+#
+#     For speed:
+#     random=False : best use size ~ 1000  (in this mode, size is a scaling factor on the intensity of a phase bin)
+#     random=True : best use size ~ 10,000 (total number of draws)
+#     """
+#     profile_sampling = profile_as_distribution(profile, phase, size = phase_distribution_size, random=draw_random)
+#
+#     """
+#     Fit data
+#     """
+#     with parallel_backend('threading', n_jobs=-1):
+#         gmm = mixture.BayesianGaussianMixture(
+#             n_components = n_components_start,
+#             weight_concentration_prior_type=weight_concentration_prior_type,
+#             weight_concentration_prior=alpha,
+#             mean_prior=mean_prior,
+#             mean_precision_prior=mean_precision_prior,
+#             tol=tol,
+#             max_iter=max_iter
+#         )
+#         gmm.fit(profile_sampling)
+#
+#     return gmm
 
 def profile_from_gmm(observation, cut=False, scale=False, fwhm=None, fit_whole=True, window=0.3, interpulse=False):
     gmm = observation.gmm
