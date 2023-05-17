@@ -30,9 +30,10 @@ def compute_dist(pop,
                  open_end,
                  distance_only,
                  cropped):
+    
     dist = 0
     freq_n = 0
-    for freq in pop[i].observations.keys() if freq_ids_to_include is None else freq_ids_to_include:
+    for freq in pop[i].observations.keys() if freq_ids_to_include is None else freq_ids_to_include:        
         this_found, that_found = True, True
         try:
             this = pop[i].observations[freq]
@@ -46,7 +47,7 @@ def compute_dist(pop,
 
         if this_found and that_found:
             this_snr_found, that_snr_found = this.snr > min_snr, that.snr > min_snr
-
+            
             if this_snr_found:
                 if i not in population_graph_indices.keys():
                     population_graph_indices[i] = matched_idx
@@ -194,6 +195,7 @@ def complete_undirected_weighted_graph(population,
         # ) for j in range(i + 1, len(pop)))
 
         for j in range(i + 1, len(pop)):
+            
             dist = 0
             freq_n = 0
             for freq in pop[i].observations.keys() if freq_ids_to_include is None else freq_ids_to_include:

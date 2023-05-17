@@ -427,9 +427,9 @@ class Observation:
     def phase(self):
         if hasattr(self, '_phase'):
             if self._phase is None:
-                self.set_phase(prop='stokes_I')
+                self.set_phase(prop='model')
         else:
-            self.set_phase(prop='stokes_I')
+            self.set_phase(prop='model')
 
         return self._phase
 
@@ -624,6 +624,13 @@ class Observation:
     @model.setter
     def model(self, model):
         self._model = model
+        if model is not None:
+            self.set_phase('model')
+            self.set_fwhm('model')
+            self.set_centroid('model')
+            self.set_snr('model')
+            # self.central, self.sigma_noise, _ = compute_statistics(self.stokes_I)
+            self.central, self.sigma_noise, _ = robust_statistics(self.model)
 
     @property
     def model_components(self):
@@ -646,7 +653,7 @@ class Observation:
     def gmm(self, gmm):
         self._gmm = gmm
 
-    def get_property(self, prop='stokes_I', phase_fraction:float=None):
+    def get_property(self, prop='model', phase_fraction:float=None):
         if 'freq' in prop:
             X = self.frequency
 
@@ -676,37 +683,37 @@ class Observation:
 
         return X if phase_fraction is None else X[np.where(np.abs(self.phase) < phase_fraction)]
 
-    def get_centroid(self, prop='stokes_I'):
+    def get_centroid(self, prop='model'):
         return centroid(
             self.get_property(prop)
         )
 
-    def set_centroid(self, prop='stokes_I'):
+    def set_centroid(self, prop='model'):
         self.centroid = self.get_centroid(prop)
 
-    def get_fwhm(self, prop='stokes_I'):
+    def get_fwhm(self, prop='model'):
         return fwhm(
             self.get_property(prop),
             return_dist=True
         )
 
-    def set_fwhm(self, prop='stokes_I'):
+    def set_fwhm(self, prop='model'):
         self.fwhm = self.get_fwhm(prop)
 
-    def get_phase(self, prop='stokes_I'):
+    def get_phase(self, prop='model'):
         return convert_x_to_phase(
             self.get_property(prop)
         )
 
-    def set_phase(self, prop='stokes_I'):
+    def set_phase(self, prop='model'):
         self.phase = self.get_phase(prop)
 
-    def get_snr(self, prop='stokes_I'):
+    def get_snr(self, prop='model'):
         return robust_statistics(
             self.get_property(prop)
         )[2]
 
-    def set_snr(self, prop='stokes_I'):
+    def set_snr(self, prop='model'):
         self.snr = self.get_snr(prop)
 
     # def get_model(self, prop='stokes_I',

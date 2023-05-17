@@ -157,26 +157,42 @@ class Distance:
                         window_type=kwargs['window_type'],
                         window_args=kwargs['window_args'],
                         open_begin=kwargs['open_begin'],
-                        open_end=kwargs['open_end']).distance
+                        open_end=kwargs['open_end']).normalizedDistance
             else:
-                d = np.max([dtw(a_cropped if cropped else a,
-                                b_cropped if cropped else b,
-                                keep_internals=False,
-                                distance_only=kwargs['distance_only'],
-                                step_pattern=kwargs['step_pattern'],
-                                window_type=kwargs['window_type'],
-                                window_args=kwargs['window_args'],
-                                open_begin=kwargs['open_begin'],
-                                open_end=kwargs['open_end']).distance,
-                            dtw(b_cropped if cropped else b,
-                                a_cropped if cropped else a,
-                                keep_internals=False,
-                                distance_only=kwargs['distance_only'],
-                                step_pattern=kwargs['step_pattern'],
-                                window_type=kwargs['window_type'],
-                                window_args=kwargs['window_args'],
-                                open_begin=kwargs['open_begin'],
-                                open_end=kwargs['open_end']).distance])
+                try:
+                    d1 = dtw(a_cropped if cropped else a,
+                                    b_cropped if cropped else b,
+                                    keep_internals=False,
+                                    distance_only=kwargs['distance_only'],
+                                    step_pattern=kwargs['step_pattern'],
+                                    window_type=kwargs['window_type'],
+                                    window_args=kwargs['window_args'],
+                                    open_begin=kwargs['open_begin'],
+                                    open_end=kwargs['open_end']).normalizedDistance
+                except ValueError:
+                    d1 = None
+                try:
+                    d2 = dtw(b_cropped if cropped else b,
+                                    a_cropped if cropped else a,
+                                    keep_internals=False,
+                                    distance_only=kwargs['distance_only'],
+                                    step_pattern=kwargs['step_pattern'],
+                                    window_type=kwargs['window_type'],
+                                    window_args=kwargs['window_args'],
+                                    open_begin=kwargs['open_begin'],
+                                    open_end=kwargs['open_end']).normalizedDistance
+                except ValueError:
+                    d2 = None
+                
+                if d1 is not None and d2 is not None:
+                    d = np.max([d1, d2])
+                elif d1 is not None:
+                    d = d1
+                elif d2 is not None:
+                    d = d2
+                else:
+                    d = -9999   # Figure this issue out later!
+
             return d
 
 
