@@ -1,3 +1,8 @@
+pink = (230/255, 29/255, 95/255, 1)
+pink_translucid = (230/255, 29/255, 95/255, .2)
+blue = (47/255, 161/255, 214/255, 0.2)
+blue_full = (47/255, 161/255, 214/255, 1)
+
 freqs_filename = {0: u'0-200MHz', # in MHz
                   1: u'200-400MHz',
                   2: u'400-700MHz',
@@ -6,7 +11,7 @@ freqs_filename = {0: u'0-200MHz', # in MHz
                   5: u'1500-2000MHz',
                   6: u'2000+MHz'}
 
-palette_colourlovers = {
+palette = {
     0: '#490A3D',
     1: '#BD1550',
     2: '#E97F02',
@@ -15,11 +20,28 @@ palette_colourlovers = {
 
 } # https://www.colourlovers.com/palette/848743/(_”_)
 
-palette_qualitative_paired_12 = {i:c for i, c in enumerate(['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c',
+palette = {i:c for i, c in enumerate(['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c',
                                       '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00',
                                       '#cab2d6', '#6a3d9a', '#ffff99', '#b15928']) } # https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12
 
-palette_Geys = {i:c for i, c in enumerate(
+palette_rankin_class = {i:c for i, c in enumerate(
+        [ '#b3e2cd','#fdcdac','#cbd5e8','#f4cae4','#e6f5c9','#fff2ae','#f1e2cc','#cccccc' ]
+    )
+}
+
+palette_morph_class = {
+    # c:palette_rankin_class[i] for i, c in enumerate(
+    #     np.unique(morphological_classes[(morphological_classes != 'N/A')])
+    # )
+    'Core single': palette_rankin_class[0],
+    'Conal single': palette_rankin_class[1],
+    'Conal double': palette_rankin_class[2],
+    'Triple': palette_rankin_class[3],
+    'Multiple': palette_rankin_class[4],
+}
+palette_morph_class['N/A'] = '#000000'
+
+palette = {i:c for i, c in enumerate(
     ['#252525', '#737373',
      '#252525', '#737373',
      '#252525', '#737373',
@@ -32,28 +54,4 @@ palette_Geys = {i:c for i, c in enumerate(
      '#252525', '#737373',
      '#000000'][::-1]
 )} # https://colorbrewer2.org/#type=sequential&scheme=Greys&n=8
-
-palette_rankin_class = {i:c for i, c in enumerate(
-        [
-#             '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00'
-#             '#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854'
-            '#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99'
-        ]
-    )
-}
-
-palettes = {
-    'colourlovers': palette_colourlovers,
-    'qualitative_paired_12': palette_qualitative_paired_12,
-    'Greys': palette_Geys,
-    'rankin': palette_rankin_class,
-}
-# palette = {i:c for i, c in enumerate(['#8dd3c7', '#ffffb3', '#bebada', '#fb8072',
-#                                       '#80b1d3', '#fdb462', '#b3de69', '#fccde5']) } # https://colorbrewer2.org/#type=qualitative&scheme=Set3&n=8
-
-# palette = {i:c for i, c in enumerate(
-#     ['#ffffff', '#fdbf6f', '#f0f0f0', '#bdbdbd', '#d9d9d9',
-#      '#737373', '#969696', '#525252', '#252525'][::-1]
-# )} # https://colorbrewer2.org/#type=sequential&scheme=Greys&n=8
-
 

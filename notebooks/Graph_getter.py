@@ -11,6 +11,8 @@ import h5py
 import scipy
 import wget
 
+from urllib.error import HTTPError
+
 data_catalog = catalog.as_dataframe()
 
 def boxcar_kernel(width):
@@ -48,42 +50,42 @@ def get_data(burst_index_number):
     example_tns = data_catalog["tns_name"][burst_index_number]
     url_base = "https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/files/vault/AstroDataCitationDOI/CISTI.CANFAR/21.0007/data/waterfalls/data/"
     waterfall_string = '_waterfall.h5'
-    url = url_base + example_tns +waterfall_string
+    url = url_base + example_tns + waterfall_string
     
     #statement implemented so in testing every run does not create duplicates of the same file (saving runtime and storage)
     try:
         scratch_folder = '/scratch/hugo_v/'
-        FRB_data_folder = "../FRB_data_files/"
+        FRB_data_folder = "FRB_data_files/"
         Data_from_source = example_tns + waterfall_string
         #data = h5py.File(Data_from_source, "r")
         data = h5py.File(f"{FRB_data_folder}{Data_from_source}", "r")
 
-        print("file from folder")
+        # print("file from folder")
 
         
     except:
-        print('file not in folder, downloading')
-        Data_from_source = wget.download(url, out='./FRB_data_files/') #+example_tns+waterfall_string)
+        # print('file not in folder, downloading')
+        Data_from_source = wget.download(url, out='FRB_data_files/') #+example_tns+waterfall_string)
         data = h5py.File(Data_from_source, "r")
-     
+
     return data
 
 def make_curves(data):
     data = data["frb"]
-    eventname = data.attrs["tns_name"].decode()
+    # eventname = data.attrs["tns_name"].decode()
     wfall = data["wfall"][:]
     model_wfall = data["model_wfall"][:]
     plot_time = data["plot_time"][:]
-    plot_freq = data["plot_freq"][:]
+    # plot_freq = data["plot_freq"][:]
     ts = data["ts"][:]
-    model_ts = data["model_ts"][:]
+    # model_ts = data["model_ts"][:]
     spec = data["spec"][:]
-    model_spec = data["model_spec"][:]
-    extent = data["extent"][:]
-    dm = data.attrs["dm"][()]
-    scatterfit = data.attrs["scatterfit"][()]
-    cal_obs_date = data.attrs["calibration_observation_date"].decode()
-    cal_source_name = data.attrs["calibration_source_name"].decode()
+    # model_spec = data["model_spec"][:]
+    # extent = data["extent"][:]
+    # dm = data.attrs["dm"][()]
+    # scatterfit = data.attrs["scatterfit"][()]
+    # cal_obs_date = data.attrs["calibration_observation_date"].decode()
+    # cal_source_name = data.attrs["calibration_source_name"].decode()
     cal_wfall =  data["calibrated_wfall"][:]
 
     dt = np.median(np.diff(plot_time)) # the delta (time) between time bins 
@@ -116,7 +118,7 @@ def make_curves(data):
 
 
     peak, width, snr = find_burst(ts)
-    print(f"Peak: {peak} at time sample, Width = {width*dt} ms, SNR = {snr}")
+    # print(f"Peak: {peak} at time sample, Width = {width*dt} ms, SNR = {snr}")
 
     # bin frequency channels such that we have 16,384/16 = 1024 frequency channels 
     #wfall = bin_freq_channels(wfall, 16)
@@ -151,7 +153,14 @@ def make_curves(data):
     return plot_time, np.append(ts, ts[-1]), np.append(model_ts, model_ts[-1]),times_shorter, cal_ts_shorter, snr
 
 
-def Get_me_FRB_data(burst_index_number_input):
-    data= get_data(burst_index_number =burst_index_number_input)
-    plot_time, ts_full_list, model_ts_full_list, times_shorter, cal_ts_shorter, snr = make_curves(data)
-    return plot_time, ts_full_list, model_ts_full_list, times_shorter, cal_ts_shorter, snr
+def Get_me_FRB_data(burst_index_number_input, folder=None):
+    try:
+        data= get_data(burst_index_number =burst_index_number_input)
+    except (KeyError, HTTPError):
+        return None, None, None, None, None, None
+
+    try:
+        plot_time, ts_full_list, model_ts_full_list, times_shorter, cal_ts_shorter, snr = make_curves(data)
+        return plot_time, ts_full_list, model_ts_full_list, times_shorter, cal_ts_shorter, snr
+    except KeyError:
+        return None, None, None, None, None, None
